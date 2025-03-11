@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* JSX sin React */
+    "jsx": "preserve",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+
+    /* Módulos y resolución */
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "esModuleInterop": true,
+
+    /* Performance y chequeos */
+    "skipLibCheck": true,
+    "useDefineForClassFields": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src", "src/ui/jsxTypes.d.ts"],
+  "types": ["node"]
+}
