@@ -1,3 +1,5 @@
+import { h } from './jsxRuntime'
+
 export function App() {
   return (
     <div>
