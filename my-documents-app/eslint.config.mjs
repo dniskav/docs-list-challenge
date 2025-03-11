@@ -10,14 +10,15 @@ import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import unusedImports from 'eslint-plugin-unused-imports'
 
-/** @type {import("eslint").Linter.FlatConfig[]} */
+/** @type {import("eslint").Linter.Config[]} */
 export default [
   js.configs.recommended,
   prettierConfig,
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
-      parser: tsparser
+      parser: tsparser,
+      globals: { document: 'readonly', console: 'readonly' } // Agregar reconocimiento de variables globales
     },
     plugins: {
       '@typescript-eslint': tseslint,
@@ -30,7 +31,7 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
-      'no-console': 'warn',
+      'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off', // Bloquea console en producción
       'unused-imports/no-unused-imports': 'error',
       'react/react-in-jsx-scope': 'off',
       'react/jsx-filename-extension': ['warn', { extensions: ['.tsx'] }],
