@@ -36,12 +36,15 @@ export function render(element: FiberNode, container: HTMLElement) {
 
   const dom = createDom(element)
   if (!dom) {
-    console.error('🚨 error creating DOM Node:', element)
+    console.error('🚨 Error creating DOM Node:', element)
     return
   }
 
   if (element.props?.children) {
-    element.props.children.forEach((child: FiberNode) => render(child, dom as HTMLElement))
+    element.props.children.forEach((child: FiberNode) => {
+      child.parent = element
+      render(child, dom as HTMLElement)
+    })
   }
 
   container.appendChild(dom)
