@@ -1,5 +1,14 @@
 import { createFiberNode, FiberNode } from './FiberNode'
 
+/**
+ * Creates a FiberNode representation of an element, similar to React's `createElement` function.
+ * This function supports both functional and string-based component types.
+ *
+ * @param type - The type of the element (either an HTML tag as a string or a functional component).
+ * @param props - An object containing the properties of the element.
+ * @param children - The child elements of the node.
+ * @returns A new FiberNode representing the given element.
+ */
 export function h(
   type: string | Function,
   props: Record<string, any> = {},
@@ -9,7 +18,7 @@ export function h(
     return type as FiberNode
   }
 
-  return createFiberNode(type, {
+  const fiberNode = createFiberNode(type, {
     ...props,
     children: children
       .flat()
@@ -17,4 +26,6 @@ export function h(
         typeof child === 'string' ? createFiberNode('TEXT_ELEMENT', { nodeValue: child }) : child
       )
   })
+
+  return fiberNode
 }
