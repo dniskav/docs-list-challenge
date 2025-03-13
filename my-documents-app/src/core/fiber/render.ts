@@ -1,4 +1,4 @@
-import { createDom, FiberNode } from '.'
+import { createDom, FiberNode, linkParents } from '.'
 
 let currentRoot: FiberNode | null = null
 let workInProgressRoot: FiberNode | null = null
@@ -42,49 +42,6 @@ export function render(element: FiberNode, container: HTMLElement) {
     commitRoot(container)
   } else {
     console.error('❌ ERROR: workInProgressRoot was not assigned correctly.')
-  }
-}
-
-/**
- * Recursively assigns the `parent` property to each fiber node
- * and links sibling nodes together.
- * @param fiber - The fiber node being processed.
- * @param parent - The parent fiber node.
- */
-function linkParents(fiber: FiberNode, parent: FiberNode | null) {
-  fiber.parent = parent
-
-  if (fiber.props?.children) {
-    let prevSibling: FiberNode | null = null
-
-    fiber.props.children.forEach((child: FiberNode, index: number) => {
-      let node = child
-
-      // ✅ Si el nodo es un componente funcional, lo evaluamos aquí también
-      if (typeof child.type === 'function') {
-        const componentOutput = child.type(child.props)
-        node = {
-          ...componentOutput,
-          parent: fiber,
-          dom: null,
-          props: {
-            ...componentOutput.props,
-            'data-fiber-component': child.type.name || 'AnonymousComponent'
-          }
-        }
-      }
-
-      node.parent = fiber
-
-      if (index === 0) {
-        fiber.child = node
-      } else {
-        prevSibling!.sibling = node
-      }
-      prevSibling = node
-
-      linkParents(node, fiber)
-    })
   }
 }
 
