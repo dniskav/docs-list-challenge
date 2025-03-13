@@ -1,5 +1,4 @@
-import { h } from '../../../core/fiber/jsxRuntime'
-import { useState } from '../../../core/fiber/jsxRuntime'
+import { h, useState } from '../../../core/fiber'
 import { createDocumentService } from '../../../modules/document/application/DocumentService'
 import { HttpDocumentRepository } from '../../../modules/document/infrastructure/HttpDocumentRepository'
 import { Document } from '../../../modules/document/domain/Document'
@@ -7,23 +6,24 @@ import { Document } from '../../../modules/document/domain/Document'
 const documentService = createDocumentService(HttpDocumentRepository)
 
 export function DocumentsManager() {
-  const [documents, setDocuments, subscribeDocuments] = useState<Document[]>([])
+  const [documents, setDocuments] = useState<Document[]>([])
 
   async function fetchDocuments() {
     const docs = await documentService.listDocuments()
     setDocuments(docs)
   }
 
-  subscribeDocuments((updatedDocuments) => {
-    console.log('📄 Estado actualizado:', updatedDocuments)
-  })
+  // subscribeDocuments((updatedDocuments) => {
+  //   console.log('📄 Estado actualizado:', updatedDocuments)
+  //   render()
+  // })
 
   console.log('Renderizando DocumentsManager...')
   console.log('Estado actual de documentos:', documents)
 
   fetchDocuments() // 🔥 Esto debe ejecutarse dentro del flujo del renderizado
 
-  return (
+  const render = () => (
     <section>
       <h2>📄 Lista de Documentos</h2>
       <ul>
@@ -48,4 +48,6 @@ export function DocumentsManager() {
       </ul>
     </section>
   )
+
+  return render()
 }
