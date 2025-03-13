@@ -1,5 +1,19 @@
 import { FiberNode } from './FiberNode'
 
+export const attributeHandlers: Record<string, (dom: HTMLElement, value: any) => void> = {
+  style: (dom, value) => {
+    if (typeof value === 'object') {
+      const styleString = Object.entries(value)
+        .map(([prop, val]) => `${prop.replace(/([A-Z])/g, '-$1').toLowerCase()}:${val}`)
+        .join('; ')
+      dom.setAttribute('style', styleString)
+    }
+  },
+  className: (dom, value) => {
+    dom.setAttribute('class', value)
+  }
+}
+
 /**
  * Creates a DOM node from a FiberNode.
  *
@@ -8,8 +22,7 @@ import { FiberNode } from './FiberNode'
  */
 export function createDom(fiber: FiberNode): HTMLElement | Text | null {
   if (typeof fiber.type === 'function') {
-    const componentOutput = fiber.type(fiber.props)
-    return createDom(componentOutput)
+    return createDom(fiber.type(fiber.props))
   }
 
   if (fiber.type === 'TEXT_ELEMENT') {
@@ -24,8 +37,9 @@ export function createDom(fiber: FiberNode): HTMLElement | Text | null {
 
   Object.entries(fiber.props || {}).forEach(([key, value]) => {
     if (key.startsWith('on') && typeof value === 'function') {
-      const eventType = key.toLowerCase().substring(2)
-      dom.addEventListener(eventType, value)
+      dom.addEventListener(key.toLowerCase().substring(2), value)
+    } else if (attributeHandlers[key]) {
+      attributeHandlers[key](dom as HTMLElement, value)
     } else if (key !== 'children') {
       dom.setAttribute(key, value)
     }
