@@ -16,7 +16,18 @@ export function render(element: FiberNode, container: HTMLElement) {
 
   if (typeof element.type === 'function') {
     const componentOutput = element.type(element.props)
-    return render(componentOutput, container)
+
+    const functionFiber: FiberNode = {
+      ...componentOutput,
+      parent: element.parent,
+      dom: null,
+      props: {
+        ...componentOutput.props,
+        'data-fiber-component': element.type.name || 'AnonymousComponent'
+      }
+    }
+
+    return render(functionFiber, container)
   }
 
   workInProgressRoot = {
@@ -45,17 +56,34 @@ function linkParents(fiber: FiberNode, parent: FiberNode | null) {
 
   if (fiber.props?.children) {
     let prevSibling: FiberNode | null = null
+
     fiber.props.children.forEach((child: FiberNode, index: number) => {
-      child.parent = fiber
+      let node = child
+
+      // ✅ Si el nodo es un componente funcional, lo evaluamos aquí también
+      if (typeof child.type === 'function') {
+        const componentOutput = child.type(child.props)
+        node = {
+          ...componentOutput,
+          parent: fiber,
+          dom: null,
+          props: {
+            ...componentOutput.props,
+            'data-fiber-component': child.type.name || 'AnonymousComponent'
+          }
+        }
+      }
+
+      node.parent = fiber
 
       if (index === 0) {
-        fiber.child = child
+        fiber.child = node
       } else {
-        prevSibling!.sibling = child
+        prevSibling!.sibling = node
       }
-      prevSibling = child
+      prevSibling = node
 
-      linkParents(child, fiber) // Recursively link children
+      linkParents(node, fiber)
     })
   }
 }
