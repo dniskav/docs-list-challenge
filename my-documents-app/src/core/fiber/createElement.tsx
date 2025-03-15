@@ -1,6 +1,6 @@
 // ✅ Convierte JSX en Elementos del DOM
-export function createEl(el: any, store: any = null) {
-  // ✅ Recibe el store como parámetro opcional
+export function createEl(el: any, fTree: any = null) {
+  // ✅ Recibe el fTree como parámetro opcional
   const { props } = el
   const dom = document.createElement(el.type)
 
@@ -8,9 +8,9 @@ export function createEl(el: any, store: any = null) {
     dom.setAttribute('data-component', el.component.name) // 🔥 Marcar en el DOM
   }
 
-  if (store && el) {
-    // console.log(`🔥 Guardando domRef en store para ${el.props.__fid}`, dom)
-    store[el.props.__fid].domRef = dom // 🔥 Guardamos la referencia del DOM en el store
+  if (fTree && el) {
+    // console.log(`🔥 Guardando domRef en fTree para ${el.props.__fid}`, dom)
+    fTree[el.props.__fid].domRef = dom // 🔥 Guardamos la referencia del DOM en el fTree
   }
 
   if (props.children) {
@@ -21,7 +21,7 @@ export function createEl(el: any, store: any = null) {
         dom.appendChild(child)
         return
       }
-      dom.appendChild(createEl(child, store)) // ✅ Pasamos el store recursivamente
+      dom.appendChild(createEl(child, fTree)) // ✅ Pasamos el fTree recursivamente
     })
   }
 

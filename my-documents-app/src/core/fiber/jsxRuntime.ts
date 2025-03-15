@@ -4,14 +4,14 @@ function generateFID(): string {
 
 // ✅ Definir la interfaz para la configuración de `h`
 interface HConfig {
-  useStore: boolean
-  store?: Record<string, any>
+  useFTree: boolean
+  fTree?: Record<string, any>
 }
 
 // 🔧 Configuración global de `h` con tipado seguro
 export const hConfig: HConfig = {
-  useStore: false, // 🚀 Solo usará store si se configura
-  store: {}
+  useFTree: false, // 🚀 Solo usará fTree si se configura
+  fTree: {}
 }
 
 export function h(type: string | Function, props: Record<string, any> = {}, ...children: any[]) {
@@ -20,14 +20,14 @@ export function h(type: string | Function, props: Record<string, any> = {}, ...c
   if (typeof type === 'function') {
     const resolvedProps = { ...props, children, __fid: id }
 
-    // 🚀 Si el store está activo, inyectar estado
-    if (hConfig.useStore) {
-      hConfig.store ||= {} // 📌 Asegurar que el store existe
-      hConfig.store[id] ||= {
+    // 🚀 Si el fTree está activo, inyectar estado
+    if (hConfig.useFTree) {
+      hConfig.fTree ||= {} // 📌 Asegurar que el fTree existe
+      hConfig.fTree[id] ||= {
         name: type.name,
         state: {},
         props: resolvedProps, // ✅ Guardamos las props iniciales
-        component: type, // 🔥 Guardar la referencia del componente en el store
+        component: type, // 🔥 Guardar la referencia del componente en el fTree
         hRef: h // ✅ Guardar referencia a `h`
       }
 
@@ -50,9 +50,9 @@ export function h(type: string | Function, props: Record<string, any> = {}, ...c
     }
   }
 
-  if (hConfig.useStore) {
-    hConfig.store ||= {} // 📌 Asegurar que el store existe
-    hConfig.store[id] ||= {
+  if (hConfig.useFTree) {
+    hConfig.fTree ||= {} // 📌 Asegurar que el fTree existe
+    hConfig.fTree[id] ||= {
       name: type,
       state: {},
       props: {
@@ -76,7 +76,7 @@ export function h(type: string | Function, props: Record<string, any> = {}, ...c
   }
 }
 
-// ✅ Método `h.config()` para configurar store
+// ✅ Método `h.config()` para configurar fTree
 h.config = (newConfig: HConfig) => {
   Object.assign(hConfig, newConfig)
 }

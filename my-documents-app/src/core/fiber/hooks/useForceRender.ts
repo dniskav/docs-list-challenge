@@ -16,11 +16,10 @@ export function useForceRender(ref: any) {
     ref.props = { ...ref.props, ...ref.state } // ✅ Actualizar props
 
     const newJSX = ref.component(ref.props) // 🔄 Generar nuevo JSX con props actuales
-    const newDom = createEl(newJSX, h.getConfig().store) // 🔥 Convertir JSX a DOM
+    const newDom = createEl(newJSX, h.getConfig().fTree) // 🔥 Convertir JSX a DOM
 
-    console.log(`🔄 Reemplazando en el DOM`)
     ref.domRef.replaceWith(newDom) // ✅ Reemplazar en el DOM
-    ref.domRef = newDom // 📌 Actualizar referencia en el store
+    ref.domRef = newDom // 📌 Actualizar referencia en el fTree
 
     // 📌 Restaurar el foco después del reemplazo
     if (isFocused) {

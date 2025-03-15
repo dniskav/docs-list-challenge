@@ -2,12 +2,12 @@ import { h } from './core/fiber'
 import { createEl } from './core/fiber'
 import { useForceRender, useSelfRef, useState } from './core/fiber/hooks'
 
-// 🔥 Habilitar el store
-const myStore: Record<string, any> = {} // 📌 Definir nuestro store
+// 🔥 Habilitar el fTree
+const myfTree: Record<string, any> = {} // 📌 Definir nuestro fTree
 
 h.config({
-  useStore: true, // ✅ Ahora sí usará store
-  store: myStore
+  useFTree: true, // ✅ Ahora sí usará fTree
+  fTree: myfTree
 })
 
 // ✅ Estado simulado para manejar la lista dinámicamente
@@ -43,23 +43,44 @@ const DeleteButton = ({ onClick }: { onClick: () => void }) => {
 
 // ✅ Componente de la lista ahora recibe `list` como parámetro
 const NumberList = ({ list, __fid }: { list: number[] }) => {
-  // ✅ Obtener el `selfRef` de la función
   const ref = useSelfRef(__fid)
-  const render = useForceRender(ref)
+  const [lista, setLista] = useState(ref, 'list', list)
+  const [mostrar, setMostrar] = useState(ref, 'mostrar', false)
+
   ref.state.list = [...list]
 
   const deleteItem = (ndx) => {
-    ref.state.list = ref.state.list.filter((curr: number) => curr !== ndx)
-    render()
+    const newList = ref.state.list.filter((curr: number) => curr !== ndx)
+    setLista(newList)
+  }
+
+  const toggleList = (ev) => {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    if (lista.length > 0) {
+      setMostrar(!mostrar)
+      console.log({ myfTree })
+    }
   }
 
   return (
     <ul>
-      {ref.state.list.map((num) => (
-        <li key={num}>
-          Número: {num}
-          <DeleteButton onClick={() => deleteItem(num)} />
-          <ButtonComponent saludo={num} />
+      {lista.map((num) => (
+        <li>
+          <span key={num} onClick={toggleList}>
+            Número: {num}
+          </span>
+          {mostrar && (
+            <ul>
+              <li>
+                <DeleteButton onClick={() => deleteItem(num)} />
+              </li>
+              <li>
+                <ButtonComponent saludo={num} />
+              </li>
+            </ul>
+          )}
         </li>
       ))}
     </ul>
@@ -99,7 +120,7 @@ const Test0 = (
 )
 
 // ✅ Renderizar en el DOM
-const r = createEl(Test0, myStore)
+const r = createEl(Test0, myfTree)
 document.body.appendChild(r)
 
-console.log({ myStore })
+console.log({ myfTree })
