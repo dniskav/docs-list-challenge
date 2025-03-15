@@ -8,24 +8,27 @@ export function useForceRender(ref: any) {
       return
     }
 
-    // 🔥 Generar nuevas props fusionando estado actual sin mutar el original
-    const updatedProps = { ...ref.props, ...ref.state }
+    // 📌 Guardar el nodo enfocado antes del reemplazo
+    const activeElement = document.activeElement as HTMLElement
+    const isFocused = ref.domRef.contains(activeElement)
+    const cursorPos = (activeElement as HTMLInputElement)?.selectionStart || 0
 
-    // 🔄 Generar nuevo JSX con las props fusionadas
-    const newJSX = ref.component(updatedProps)
+    ref.props = { ...ref.props, ...ref.state } // ✅ Actualizar props
 
-    // ✅ Validar si hay `domRef` antes de reemplazar
-    if (!ref.domRef) {
-      console.warn('⚠️ No se puede reemplazar porque domRef es undefined:', ref)
-      return
-    }
-
+    const newJSX = ref.component(ref.props) // 🔄 Generar nuevo JSX con props actuales
     const newDom = createEl(newJSX, h.getConfig().store) // 🔥 Convertir JSX a DOM
 
-    console.log(`🔄 Reemplazando en el DOM`, ref.domRef, '➡️', newDom)
+    console.log(`🔄 Reemplazando en el DOM`)
     ref.domRef.replaceWith(newDom) // ✅ Reemplazar en el DOM
     ref.domRef = newDom // 📌 Actualizar referencia en el store
 
-    console.log({ myStore: h.getConfig().store })
+    // 📌 Restaurar el foco después del reemplazo
+    if (isFocused) {
+      const input = newDom.querySelector('input') as HTMLInputElement
+      if (input) {
+        input.focus()
+        input.setSelectionRange(cursorPos, cursorPos) // Mantener la posición del cursor
+      }
+    }
   }
 }

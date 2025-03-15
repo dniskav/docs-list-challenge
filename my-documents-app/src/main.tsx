@@ -21,15 +21,13 @@ interface ButtonProps {
 // ✅ Componente de botón con evento `onClick`
 const ButtonComponent = ({ saludo, __fid }: ButtonProps) => {
   const ref = useSelfRef(__fid)
-  const render = useForceRender(ref)
 
   // 🚀 Nuevo `useState` para manejar el estado correctamente
   const [datoPrueba, setDatoPrueba] = useState(ref, 'datoPrueba', 'daniel')
 
   const showRef = () => {
     console.log('🔄 Mostrando el componente ', ref, __fid)
-    setDatoPrueba('tefa') // ✅ Cambia el estado
-    render() // 🔄 Disparar re-render
+    setDatoPrueba('tefa')
   }
 
   return (
@@ -68,22 +66,22 @@ const NumberList = ({ list, __fid }: { list: number[] }) => {
   )
 }
 
-const TimerTest = ({ step, __fid }: { step: number }) => {
+const TextBoxTest = ({ __fid }: { __fid?: string }) => {
   const ref = useSelfRef(__fid)
-  const render = useForceRender(ref)
 
-  ref.state.step = step
-
-  const timer = () => {
-    ref.state.step++
-    render()
-  }
-
-  //setTimeout(timer, 1000)
+  const [text, setText] = useState(ref, 'textValue', '')
 
   return (
     <div>
-      <h4>Timer {ref.state.step}</h4>
+      <input
+        type="text"
+        value={text}
+        onInput={(e) => {
+          setText((e.target as HTMLInputElement).value)
+        }}
+        placeholder="Escribe algo..."
+      />
+      <p>Texto ingresado: {text}</p>
     </div>
   )
 }
@@ -93,7 +91,10 @@ const Test0 = (
   <div>
     <h1>Lista de Números</h1>
     <NumberList list={listData} />
-    <TimerTest step={0} />
+
+    <TextBoxTest />
+
+    <TextBoxTest />
   </div>
 )
 
