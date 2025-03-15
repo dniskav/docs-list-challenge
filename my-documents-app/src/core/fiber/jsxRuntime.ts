@@ -1,31 +1,100 @@
-import { createFiberNode, FiberNode } from './FiberNode'
+function generateFID(): string {
+  return 'f' + (Date.now().toString(16) + Math.random().toString(16).slice(2, 6)).slice(-8)
+}
 
-/**
- * Creates a FiberNode representation of an element, similar to React's `createElement` function.
- * This function supports both functional and string-based component types.
- *
- * @param type - The type of the element (either an HTML tag as a string or a functional component).
- * @param props - An object containing the properties of the element.
- * @param children - The child elements of the node.
- * @returns A new FiberNode representing the given element.
- */
-export function h(
-  type: string | Function,
-  props: Record<string, any> = {},
-  ...children: any[]
-): FiberNode {
-  if (typeof type === 'object' && type !== null) {
-    return type as FiberNode
+// ✅ Definir la interfaz para la configuración de `h`
+interface HConfig {
+  useStore: boolean
+  store?: Record<string, any>
+}
+
+// 🔧 Configuración global de `h` con tipado seguro
+export const hConfig: HConfig = {
+  useStore: false, // 🚀 Solo usará store si se configura
+  store: {}
+}
+
+export function h(type: string | Function, props: Record<string, any> = {}, ...children: any[]) {
+  const id = generateFID() // 🆔 Generar un ID único
+
+  if (typeof type === 'function') {
+    const resolvedProps = { ...props, children, __fid: id }
+
+    // 🚀 Si el store está activo, inyectar estado
+    if (hConfig.useStore) {
+      hConfig.store ||= {} // 📌 Asegurar que el store existe
+      hConfig.store[id] ||= {
+        name: type.name,
+        state: {},
+        props: resolvedProps, // ✅ Guardamos las props iniciales
+        component: type, // 🔥 Guardar la referencia del componente en el store
+        hRef: h // ✅ Guardar referencia a `h`
+      }
+
+      // 📌 Asignar referencia interna (sin pasarlo como prop)
+      ;(type as any).__selfRef = id
+    }
+
+    // 🚀 Ejecutar la función del componente con las props modificadas
+    const resolvedJSX = type(resolvedProps)
+
+    return {
+      type: resolvedJSX.type,
+      props: {
+        ...resolvedJSX.props,
+        children: resolvedJSX.props.children,
+        __fid: id // Mantener el ID en los props
+      },
+      __fid: id, // Mantener el ID en el nodo
+      component: type
+    }
   }
 
-  const fiberNode = createFiberNode(type, {
-    ...props,
-    children: children
-      .flat()
-      .map((child) =>
-        typeof child === 'string' ? createFiberNode('TEXT_ELEMENT', { nodeValue: child }) : child
-      )
-  })
+  if (hConfig.useStore) {
+    hConfig.store ||= {} // 📌 Asegurar que el store existe
+    hConfig.store[id] ||= {
+      name: type,
+      state: {},
+      props: {
+        ...props,
+        children: children,
+        __fid: id
+      },
+      hRef: h // ✅ Guardar referencia a `h`
+    }
+  }
 
-  return fiberNode
+  return {
+    type,
+    props: {
+      ...props,
+      children: processChildren(children), // 🔄 Asegurar concatenación correcta de texto
+      __fid: id
+    },
+    __fid: id, // 📌 Mantener ID único en todos los nodos
+    component: null
+  }
+}
+
+// ✅ Método `h.config()` para configurar store
+h.config = (newConfig: HConfig) => {
+  Object.assign(hConfig, newConfig)
+}
+
+h.getConfig = () => hConfig
+
+// ✅ Función para procesar los hijos y unir nodos de texto adyacentes
+function processChildren(children: any[]) {
+  return children.flat().reduce((acc, child) => {
+    if (typeof child === 'string' || typeof child === 'number') {
+      if (acc.length > 0 && acc[acc.length - 1].type === 'TEXT_ELEMENT') {
+        acc[acc.length - 1].props.nodeValue += child
+      } else {
+        acc.push({ type: 'TEXT_ELEMENT', props: { nodeValue: String(child) } })
+      }
+    } else {
+      acc.push(child)
+    }
+    return acc
+  }, [])
 }

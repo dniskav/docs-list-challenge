@@ -1,71 +1,60 @@
 import { FiberNode } from '.'
 
-/**
- * Recursively assigns the `parent` property to each fiber node
- * and links sibling nodes together.
- * @param fiber - The fiber node being processed.
- * @param parent - The parent fiber node.
- */
-export function linkParents(fiber: FiberNode, parent: FiberNode | null) {
-  console.log('📌 Antes de procesar nodo:', {
-    type: fiber.type,
-    isFunction: typeof fiber.type === 'function',
-    props: fiber.props,
-    children: fiber.props?.children
-  })
+let linkParentsCount = 0
+let totalNodes = 0
+const processedNodes = new WeakSet<FiberNode>()
 
+export function linkParents(fiber: FiberNode, parent: FiberNode | null) {
+  linkParentsCount++
+  console.log(`🔗 linkParents() ejecutado ${linkParentsCount} veces`)
+
+  if (processedNodes.has(fiber)) {
+    console.warn(`⚠️ Nodo ya procesado, evitando loop:`, fiber)
+    return
+  }
+
+  processedNodes.add(fiber)
+  totalNodes++
   fiber.parent = parent
 
   if (fiber.props?.children) {
     let prevSibling: FiberNode | null = null
 
-    // Filtramos hijos válidos
     const validChildren = fiber.props.children.filter(
       (child: any) => typeof child === 'object' && child !== null
     )
-
-    console.log(`🔍 Nodo ${fiber.type} tiene ${validChildren.length} hijos válidos.`)
 
     validChildren.forEach((child: FiberNode, index: number) => {
       let node = child
 
       if (typeof child.type === 'function') {
-        console.log(
-          `🚀 Procesando componente funcional: ${child.type.name || 'AnonymousComponent'}`
-        )
+        console.log(`🚀 Renderizando componente funcional: ${child.type.name}`)
 
         const componentOutput = child.type(child.props)
 
         if (!componentOutput || typeof componentOutput !== 'object') {
-          console.error(
-            `❌ Error: El componente ${child.type.name || 'AnonymousComponent'} no retornó un objeto válido.`
-          )
+          console.error(`❌ Error: El componente ${child.type.name} no retornó un objeto válido.`)
           return
         }
 
+        // 🔥 Aseguramos que el nodo tenga una referencia a las props correctas
         node = {
           ...componentOutput,
-          parent: fiber,
+          parent: fiber, // Asigna correctamente el padre
           dom: null,
           props: {
-            ...componentOutput.props,
+            ...componentOutput.props, // 🔥 Copia las props procesadas
             'data-fiber-component': child.type.name || 'AnonymousComponent'
           }
         }
-
-        console.log(
-          `✅ Componente funcional ${child.type.name || 'AnonymousComponent'} renderizado correctamente.`
-        )
       }
 
       node.parent = fiber
 
       if (index === 0) {
         fiber.child = node
-        console.log(`🧩 Asignando primer hijo a ${fiber.type}:`, node)
       } else {
         prevSibling!.sibling = node
-        console.log(`🔗 Asignando hermano a ${prevSibling!.type}:`, node)
       }
       prevSibling = node
 
@@ -73,10 +62,8 @@ export function linkParents(fiber: FiberNode, parent: FiberNode | null) {
     })
   }
 
-  console.log('✅ Después de procesar nodo:', {
-    type: fiber.type,
-    child: fiber.child,
-    sibling: fiber.sibling,
-    parent: fiber.parent?.type || null
-  })
+  if (parent === null) {
+    console.log(`🌳 Fiber Tree construido con ${totalNodes} nodos.`, fiber)
+    //console.log(`📌 Estructura final del Fiber Tree:`, JSON.stringify(fiber, null, 2))
+  }
 }

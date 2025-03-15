@@ -1,4 +1,4 @@
-import { FiberNode } from './core/fiber'
+import { buildFiberTree, renderFiberTree } from './fiber'
 
 /**
  * Processes JSX and converts it into a structured object.
@@ -7,18 +7,38 @@ import { FiberNode } from './core/fiber'
  * @param element - JSX element or functional component
  * @returns A structured object representing the component tree
  */
-export function render(element: any): any {
+export function render(element: any, container: HTMLElement): void {
+  if (!element || typeof element !== 'object' || !element.type) {
+    console.error('❌ Elemento inválido para renderizar.')
+    return
+  }
+
+  const structuredElement = processJSX(element)
+
+  const fiberTree = buildFiberTree(structuredElement)
+
+  const domtree = renderFiberTree(fiberTree)
+
+  container.appendChild(domtree)
+
+  console.log('✅ Renderizado completo 🎉', domtree, fiberTree)
+}
+
+/**
+ * Convierte un JSX en una estructura base (objeto con props y children).
+ * - Si es un componente funcional, ejecuta su función y procesa el resultado.
+ * - Si es un nodo HTML, procesa sus props y children.
+ */
+export function processJSX(element: any): any {
   if (!element || typeof element !== 'object' || !element.type) {
     return null
   }
 
-  console.log(`🔍 Procesando elemento:`, element) // 🛠️ Debug
-
   const isFunctionComponent = typeof element.type === 'function'
 
-  // ✅ Guardamos la referencia de la función en `type` si es un componente funcional
+  // ✅ Base del nodo
   const node: any = {
-    type: element.type, // Mantenemos la referencia si es una función
+    type: element.type,
     props: {
       ...element.props,
       children: []
@@ -26,34 +46,28 @@ export function render(element: any): any {
   }
 
   if (isFunctionComponent) {
-    console.log(`🚀 Ejecutando componente funcional: ${element.type.name}`)
-
-    const componentOutput = render(element.type(element.props)) // Renderizamos su salida
+    const componentOutput = processJSX(element.type(element.props)) // 🔄 Ejecutamos su función
 
     if (!componentOutput || typeof componentOutput !== 'object') {
       console.error(`❌ Componente inválido: ${element.type.name || 'AnonymousComponent'}`)
       return null
     }
 
-    // 🔥 Mantenemos la referencia y guardamos el resultado en props.children
+    // 🔥 Guardamos el resultado como hijo único
     node.props.children = [componentOutput]
 
-    // 📌 Agregamos la marca de depuración en el nodo
+    // 📌 Marca para depuración
     node.props['data-fiber-component'] = element.type.name || 'AnonymousComponent'
   } else {
     if (element.props?.children) {
-      console.log(`🛠️ Procesando hijos de: ${element.type}`, element.props.children)
-
       node.props.children = (
         Array.isArray(element.props.children) ? element.props.children : [element.props.children]
       )
         .flat() // 🔄 Evitar arrays anidados
-        .map((child: any) => render(child)) // 🔄 Recursión en cada hijo
-        .filter(Boolean) // 🚀 Eliminar elementos `null` o `undefined`
+        .map((child: any) => processJSX(child)) // 🔄 Recursión en cada hijo
+        .filter(Boolean) // 🚀 Eliminar `null` o `undefined`
     }
   }
-
-  console.log(`✅ Nodo construido:`, node) // 🛠️ Debug final del nodo
   return node
 }
 
