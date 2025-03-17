@@ -32,15 +32,18 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
   const stateIndex = idx
   const value = compNode.hooks[stateIndex]
 
-  const setValue = (newVal: T) => {
+  const setValue = (newVal: T | ((prevVal: T) => T)) => {
     const oldVal = compNode.hooks![stateIndex]
+
+    const updatedVal = typeof newVal === 'function' ? (newVal as (prevVal: T) => T)(oldVal) : newVal
+
     const isSame =
-      typeof newVal === 'object'
-        ? JSON.stringify(oldVal) === JSON.stringify(newVal)
-        : oldVal === newVal
+      Array.isArray(oldVal) && Array.isArray(updatedVal)
+        ? oldVal.length === updatedVal.length && oldVal.every((v, i) => v === updatedVal[i])
+        : Object.is(oldVal, updatedVal)
 
     if (!isSame) {
-      compNode.hooks![stateIndex] = newVal
+      compNode.hooks![stateIndex] = updatedVal
       reRenderComponent(fid)
     }
   }
