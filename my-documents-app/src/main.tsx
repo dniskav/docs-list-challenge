@@ -1,126 +1,154 @@
-import { h } from './core/fiber'
-import { createEl } from './core/fiber'
-import { useForceRender, useSelfRef, useState } from './core/fiber/hooks'
+import { h, render } from './core/fiber'
+import { fTree, logFTree } from './core/fiber/fTree'
+import { useState } from './core/fiber/hooks'
+import { useEffect } from './core/fiber/hooks/useEffect'
 
-// 🔥 Habilitar el fTree
-const myfTree: Record<string, any> = {} // 📌 Definir nuestro fTree
+const myfTree: Record<string, any> = {}
 
 h.config({
-  useFTree: true, // ✅ Ahora sí usará fTree
+  useFTree: true,
   fTree: myfTree
 })
 
-// ✅ Estado simulado para manejar la lista dinámicamente
 let listData = Array.from({ length: 5 }, (_, i) => i + 1)
 
-interface ButtonProps {
-  saludo: number
-  __fid?: string // Para TypeScript, lo marcamos opcional
-}
-
-// ✅ Componente de botón con evento `onClick`
-const ButtonComponent = ({ saludo, __fid }: ButtonProps) => {
-  const ref = useSelfRef(__fid)
-
-  // 🚀 Nuevo `useState` para manejar el estado correctamente
-  const [datoPrueba, setDatoPrueba] = useState(ref, 'datoPrueba', 'daniel')
+const ButtonComponent = () => {
+  const [datoPrueba, setDatoPrueba] = useState('daniel')
 
   const showRef = () => {
-    console.log('🔄 Mostrando el componente ', ref, __fid)
-    setDatoPrueba('tefa')
+    setDatoPrueba(`${Math.random()}`)
+    console.log({ fTree })
+  }
+
+  return <button onClick={showRef}>Click {datoPrueba}</button>
+}
+
+const NumberList = ({ list }: { list: number[] }) => {
+  const [mostrar, setMostrar] = useState(true)
+
+  useEffect(() => {
+    console.log('✅ Efecto inicial: Solo se ejecuta una vez (montaje)')
+  }, []) // 🔥 Solo en el primer render
+
+  useEffect(() => {
+    console.log("🔄 Efecto dependiente de 'mostrar':", mostrar)
+  }, [mostrar]) // 🔥 Se ejecuta cada vez que 'mostrar' cambia
+
+  const toggleList = () => {
+    setMostrar(!mostrar)
+    console.log({ fTree })
   }
 
   return (
-    <button onClick={showRef}>
-      Click {saludo} - {datoPrueba}
-    </button>
+    <div>
+      <button onClick={toggleList}>mostrar/ocultar:</button>
+      {mostrar && <ButtonComponent />}
+    </div>
   )
 }
 
-const DeleteButton = ({ onClick }: { onClick: () => void }) => {
-  return <button onClick={onClick}>Bórrame</button>
+// const TextBoxTest = () => {
+//   const [text, setText] = useState('')
+
+//   return (
+//     <div>
+//       <input
+//         type="text"
+//         value={text}
+//         onInput={(e) => {
+//           setText((e.target as HTMLInputElement).value)
+//         }}
+//         placeholder="Escribe algo..."
+//       />
+//       <p>Texto ingresado: {text}</p>
+//     </div>
+//   )
+// }
+
+// const MyText = ({ data }: { data: string }) => {
+//   return <aside>test - {data}</aside>
+// }
+
+// const Te = () => {
+//   const [data, setData] = useState('init')
+//   return (
+//     <section>
+//       probando
+//       <ButtonComponent saludo={1} />
+//       <button onClick={() => setData('hola')}>Click</button>
+//       <MyText data={data} />
+//     </section>
+//   )
+// }
+
+// const Test0 = () => (
+//   <div>
+//     <Te />
+//   </div>
+// )
+
+export function App() {
+  return <NumberList list={listData} />
 }
 
-// ✅ Componente de la lista ahora recibe `list` como parámetro
-const NumberList = ({ list, __fid }: { list: number[] }) => {
-  const ref = useSelfRef(__fid)
-  const [lista, setLista] = useState(ref, 'list', list)
-  const [mostrar, setMostrar] = useState(ref, 'mostrar', false)
+// const rootVNode = <App />
 
-  ref.state.list = [...list]
-
-  const deleteItem = (ndx) => {
-    const newList = ref.state.list.filter((curr: number) => curr !== ndx)
-    setLista(newList)
-  }
-
-  const toggleList = (ev) => {
-    ev.preventDefault()
-    ev.stopPropagation()
-
-    if (lista.length > 0) {
-      setMostrar(!mostrar)
-      console.log({ myfTree })
-    }
-  }
-
+function TestList() {
+  let list = Array.from({ length: 5 }, (_, i) => i + 1)
   return (
     <ul>
-      {lista.map((num) => (
-        <li>
-          <span key={num} onClick={toggleList}>
-            Número: {num}
-          </span>
-          {mostrar && (
-            <ul>
-              <li>
-                <DeleteButton onClick={() => deleteItem(num)} />
-              </li>
-              <li>
-                <ButtonComponent saludo={num} />
-              </li>
-            </ul>
-          )}
-        </li>
+      {list.map((num) => (
+        <li> - {num}</li>
       ))}
     </ul>
   )
 }
 
-const TextBoxTest = ({ __fid }: { __fid?: string }) => {
-  const ref = useSelfRef(__fid)
+const DocumentList = () => {
+  const [documents, setDocuments] = useState<any[]>([])
 
-  const [text, setText] = useState(ref, 'textValue', '')
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/documents')
+        const data = await response.json()
+        setDocuments(data)
+      } catch (error) {
+        console.error('❌ Error al obtener documentos:', error)
+      }
+    }
+
+    fetchDocuments()
+  }, []) // 🔥 Solo se ejecuta en el primer render
 
   return (
     <div>
-      <input
-        type="text"
-        value={text}
-        onInput={(e) => {
-          setText((e.target as HTMLInputElement).value)
-        }}
-        placeholder="Escribe algo..."
-      />
-      <p>Texto ingresado: {text}</p>
+      <h2>Lista de Documentos</h2>
+      <ul>
+        {documents.map((doc) => (
+          <li key={doc.ID}>
+            <section>
+              <p>
+                <strong>ID:</strong> {doc.ID}
+              </p>
+              <p>
+                <strong>CreatedAt:</strong> {doc.CreatedAt}
+              </p>
+              <p>
+                <strong>UpdatedAt:</strong> {doc.UpdatedAt}
+              </p>
+              <p>
+                <strong>Title:</strong> {doc.Title}
+              </p>
+            </section>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
 
-// ✅ JSX Principal
-const Test0 = (
-  <div>
-    <h1>Lista de Números</h1>
-    <NumberList list={listData} />
+const rootDom = document.getElementById('root')
+render(<DocumentList />, rootDom as HTMLElement)
 
-    <TextBoxTest />
-
-    <TextBoxTest />
-  </div>
-)
-
-// ✅ Renderizar en el DOM
-const r = createEl(Test0, myfTree)
-document.body.appendChild(r)
-
-console.log({ myfTree })
+console.log({ fTree })
