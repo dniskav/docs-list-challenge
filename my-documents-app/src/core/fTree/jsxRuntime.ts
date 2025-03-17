@@ -5,12 +5,6 @@ interface HConfig {
   fTree?: Record<string, any>
 }
 
-h.config = (newConfig: HConfig) => {
-  Object.assign(hConfig, newConfig)
-}
-
-h.getConfig = () => hConfig
-
 export const hConfig: HConfig = {
   useFTree: false,
   fTree: {}

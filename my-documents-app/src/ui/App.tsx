@@ -1,4 +1,4 @@
-import { h } from '../core/fiber/jsxRuntime'
+import { h } from '../core/fTree/jsxRuntime'
 import { Header, DocumentsManager } from './components'
 
 export function App() {

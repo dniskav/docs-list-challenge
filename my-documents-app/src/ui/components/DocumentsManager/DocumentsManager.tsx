@@ -1,5 +1,5 @@
-import { h } from '../../../core/fiber'
-import { useFetch } from '../../../core/fiber/hooks'
+import { h } from '../../../core/fTree'
+import { useFetch } from '../../../core/fTree/hooks'
 
 export function DocumentsManager() {
   return (

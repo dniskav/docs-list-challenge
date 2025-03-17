@@ -1,5 +1,5 @@
 import { NotificationList, Sort } from '..'
-import { h } from '../../../core/fiber/jsxRuntime'
+import { h } from '../../../core/fTree/jsxRuntime'
 
 export function Header() {
   return (

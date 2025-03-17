@@ -26,6 +26,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/core/fiber/jsxTypes.d.ts"],
+  "include": ["src", "src/core/fTree/jsxTypes.d.ts"],
   "types": ["node"]
 }

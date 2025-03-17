@@ -1,5 +1,5 @@
-import { h } from '../../../core/fiber/jsxRuntime'
-import { useWebSocket } from '../../../core/fiber/hooks'
+import { h } from '../../../core/fTree/jsxRuntime'
+import { useWebSocket } from '../../../core/fTree/hooks'
 
 export function NotificationList({ wsAddress }: { wsAddress: string }) {
   const { messages, isConnected, error } = useWebSocket(wsAddress)
