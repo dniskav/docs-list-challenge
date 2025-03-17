@@ -1,27 +1,21 @@
-import { useState } from '../../../core/fTree/hooks'
 import { h } from '../../../core/fTree/jsxRuntime'
-
-export function Sort() {
-  return (
-    <div>
-      <TextBox />
-    </div>
-  )
+import styles from './sort.module.css'
+interface Props {
+  onChange: (sort: string) => void
 }
-const TextBox = () => {
-  const [text, setText] = useState('')
 
+export function Sort({ onChange }: Props) {
   return (
-    <div>
-      <input
-        type="text"
-        value={text}
-        onInput={(e) => {
-          setText((e.target as HTMLInputElement).value)
+    <label className={styles.sort}>
+      <span>Sort by: </span>
+      <select
+        onChange={(e: any) => {
+          onChange(e.target.value)
         }}
-        placeholder="Escribe algo..."
-      />
-      <p>Texto ingresado: {text}</p>
-    </div>
+      >
+        <option>Name</option>
+        <option>Version</option>
+      </select>
+    </label>
   )
 }

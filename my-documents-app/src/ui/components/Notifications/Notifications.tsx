@@ -1,37 +1,17 @@
 import { h } from '../../../core/fTree/jsxRuntime'
 import { useWebSocket } from '../../../core/fTree/hooks'
+import styles from './notifications.module.css'
 
 export function NotificationList({ wsAddress }: { wsAddress: string }) {
-  const { messages, isConnected, error } = useWebSocket(wsAddress)
-
-  if (error) return <p>❌ Error en WebSocket: {error}</p>
+  const { messages } = useWebSocket(wsAddress)
 
   return (
-    <div>
-      <h2>Notificaciones {isConnected ? '🟢 Conectado' : '🔴 Desconectado'}</h2>
-      <ul>
-        {messages.map((msg, index) => (
-          <li key={index}>
-            <section>
-              <p>
-                <strong>Timestamp:</strong> {msg.Timestamp}
-              </p>
-              <p>
-                <strong>UserID:</strong> {msg.UserID}
-              </p>
-              <p>
-                <strong>UserName:</strong> {msg.UserName}
-              </p>
-              <p>
-                <strong>DocumentID:</strong> {msg.DocumentID}
-              </p>
-              <p>
-                <strong>DocumentTitle:</strong> {msg.DocumentTitle}
-              </p>
-            </section>
-          </li>
-        ))}
-      </ul>
+    <div className={styles.notificationContainer}>
+      <div className={styles.notificationIcon}>
+        <i className={`fas fa-bell ${styles.bellIcon}`}></i>
+        {messages.length > 0 && <span className={styles.notificationBadge}>{messages.length}</span>}
+      </div>
+      <span className={styles.notificationText}>New document added</span>
     </div>
   )
 }

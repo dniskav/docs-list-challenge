@@ -1,7 +1,7 @@
 import { Document } from '../domain/Document'
 import { DocumentRepository } from '../infrastructure'
 
-export function createDocumentService(repository: DocumentRepository) {
+export function documentService(repository: DocumentRepository) {
   const listDocuments = async (): Promise<Document[]> => {
     return await repository.getAll()
   }
