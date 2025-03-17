@@ -1,4 +1,4 @@
-import { getHooksContext } from './hooksContext'
+import { getHookIndex, getHooksContext, incHookIndex } from './hooksContext'
 
 export function useEffect(effect: () => void | (() => void), deps?: any[]) {
   const { currentFid, hooksContext } = getHooksContext()
@@ -8,19 +8,20 @@ export function useEffect(effect: () => void | (() => void), deps?: any[]) {
   if (!self) return
 
   if (!self.effects) {
-    self.effects = []
+    self.effects = [] as { effect: Function; deps: any[]; cleanup?: Function }[]
   }
 
-  const prevEffect = self.effects[self.hookIndex]
+  const idx = getHookIndex()
+  const prevEffect = self.effects[idx]
   const hasChanged = !prevEffect || !deps || deps.some((dep, i) => dep !== prevEffect.deps?.[i])
 
   if (hasChanged) {
     if (prevEffect?.cleanup) {
-      prevEffect.cleanup() // 🔥 Ejecuta la limpieza si existe
+      prevEffect.cleanup()
     }
-    const cleanup = effect() // Ejecuta el nuevo efecto
-    self.effects[self.hookIndex] = { effect, deps, cleanup }
+    const cleanup = effect() as (() => void) | undefined
+    self.effects[idx] = { effect, deps: deps || [], cleanup }
   }
 
-  self.hookIndex++
+  incHookIndex()
 }

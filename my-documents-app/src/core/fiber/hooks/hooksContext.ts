@@ -1,8 +1,5 @@
-// hooksContext.ts
-
 import { fTree } from '../fTree'
 
-// hooksContext.ts (Optimizado para manejar múltiples renders anidados)
 let currentFidStack: (string | null)[] = []
 let hookIndex = 0
 

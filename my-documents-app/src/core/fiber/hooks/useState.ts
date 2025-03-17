@@ -1,5 +1,3 @@
-// useState.ts (Optimizado para comparación de valores en objetos y arrays)
-
 import { fTree } from '../fTree'
 import { reRenderComponent } from '../reRender'
 import { getCurrentFid, getHookIndex, incHookIndex } from './hooksContext'
@@ -13,13 +11,11 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
   let compNode = fTree[fid]
 
   if (!compNode) {
-    // 🚀 Si el nodo no existe, buscar un nodo anterior del mismo tipo y reutilizar su estado
     const oldNode = Object.values(fTree).find((n) => n.type === compNode?.type)
     if (oldNode) {
-      fTree[fid] = { ...oldNode, fid } // 🔥 Reutiliza el estado anterior
       compNode = fTree[fid]
     } else {
-      fTree[fid] = { fid, type: null, props: {}, state: {}, hooks: [] }
+      fTree[fid] = { fid, type: '', props: {}, state: {}, hooks: [] }
       compNode = fTree[fid]
     }
   }
