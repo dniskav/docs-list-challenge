@@ -1,12 +1,37 @@
 import { h } from '../../../core/fiber/jsxRuntime'
+import { useWebSocket } from '../../../core/fiber/hooks'
 
-export function Notifications() {
-  const ws = new WebSocket('ws://localhost:8080/notifications')
+export function NotificationList({ wsAddress }: { wsAddress: string }) {
+  const { messages, isConnected, error } = useWebSocket(wsAddress)
 
-  ws.onmessage = (event) => {
-    const notification = JSON.parse(event.data)
-    //console.log('📢 Nueva notificación:', notification)
-  }
+  if (error) return <p>❌ Error en WebSocket: {error}</p>
 
-  return <div>Aquí van las notificaciones en tiempo real</div>
+  return (
+    <div>
+      <h2>Notificaciones {isConnected ? '🟢 Conectado' : '🔴 Desconectado'}</h2>
+      <ul>
+        {messages.map((msg, index) => (
+          <li key={index}>
+            <section>
+              <p>
+                <strong>Timestamp:</strong> {msg.Timestamp}
+              </p>
+              <p>
+                <strong>UserID:</strong> {msg.UserID}
+              </p>
+              <p>
+                <strong>UserName:</strong> {msg.UserName}
+              </p>
+              <p>
+                <strong>DocumentID:</strong> {msg.DocumentID}
+              </p>
+              <p>
+                <strong>DocumentTitle:</strong> {msg.DocumentTitle}
+              </p>
+            </section>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }

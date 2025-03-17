@@ -1,10 +1,11 @@
-import { Notifications, Sort } from '..'
+import { NotificationList, Sort } from '..'
 import { h } from '../../../core/fiber/jsxRuntime'
 
 export function Header() {
   return (
     <header>
-      <Notifications />
+      <h2>Notificaciones</h2>
+      <NotificationList wsAddress="ws://localhost:8080/notifications" />
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <h1>📄 Documentos</h1>
 

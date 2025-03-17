@@ -1,53 +1,43 @@
-import { h, useState } from '../../../core/fiber'
-import { createDocumentService } from '../../../modules/document/application/DocumentService'
-import { HttpDocumentRepository } from '../../../modules/document/infrastructure/HttpDocumentRepository'
-import { Document } from '../../../modules/document/domain/Document'
-
-const documentService = createDocumentService(HttpDocumentRepository)
+import { h } from '../../../core/fiber'
+import { useFetch } from '../../../core/fiber/hooks'
 
 export function DocumentsManager() {
-  const [documents, setDocuments] = useState<Document[]>([])
-
-  async function fetchDocuments() {
-    const docs = await documentService.listDocuments()
-    setDocuments(docs)
-  }
-
-  // subscribeDocuments((updatedDocuments) => {
-  //   console.log('📄 Estado actualizado:', updatedDocuments)
-  //   render()
-  // })
-
-  console.log('Renderizando DocumentsManager...')
-  console.log('Estado actual de documentos:', documents)
-
-  fetchDocuments() // 🔥 Esto debe ejecutarse dentro del flujo del renderizado
-
-  const render = () => (
-    <section>
-      <h2>📄 Lista de Documentos</h2>
-      <ul>
-        {documents.length > 0 ? (
-          documents.map((doc) => (
-            <li key={doc.ID}>
-              <h3>{doc.Title}</h3>
-              <p>
-                <strong>Versión:</strong> {doc.Version}
-              </p>
-              <p>
-                <strong>Contribuidores:</strong> {doc.Contributors.map((c) => c.Name).join(', ')}
-              </p>
-              <p>
-                <strong>Adjuntos:</strong> {doc.Attachments.join(', ')}
-              </p>
-            </li>
-          ))
-        ) : (
-          <p>Cargando documentos...</p>
-        )}
-      </ul>
-    </section>
+  return (
+    <div>
+      <DocumentList />
+    </div>
   )
+}
 
-  return render()
+export function DocumentList() {
+  const { data: documents, loading, error } = useFetch<any[]>('http://localhost:8080/documents')
+
+  if (loading) return <p>⏳ Cargando documentos...</p>
+  if (error) return <p>❌ Error: {error}</p>
+
+  return (
+    <div>
+      <h2>Lista de Documentos</h2>
+      <ul>
+        {documents?.map((doc) => (
+          <li key={doc.ID}>
+            <section>
+              <p>
+                <strong>ID:</strong> {doc.ID}
+              </p>
+              <p>
+                <strong>CreatedAt:</strong> {doc.CreatedAt}
+              </p>
+              <p>
+                <strong>UpdatedAt:</strong> {doc.UpdatedAt}
+              </p>
+              <p>
+                <strong>Title:</strong> {doc.Title}
+              </p>
+            </section>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
