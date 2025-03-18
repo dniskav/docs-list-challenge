@@ -1,4 +1,5 @@
 import { h } from '../../../core/fTree/jsxRuntime'
+import { Dropdown } from '../utils/Dropdown/Dropdown'
 import styles from './sort.module.css'
 interface Props {
   onChange: (sort: string) => void
@@ -6,16 +7,9 @@ interface Props {
 
 export function Sort({ onChange }: Props) {
   return (
-    <label className={styles.sort}>
+    <div className={styles.sort}>
       <span>Sort by: </span>
-      <select
-        onChange={(e: any) => {
-          onChange(e.target.value)
-        }}
-      >
-        <option>Name</option>
-        <option>Version</option>
-      </select>
-    </label>
+      <Dropdown options={['Title', 'Version']} onSelect={onChange} />
+    </div>
   )
 }

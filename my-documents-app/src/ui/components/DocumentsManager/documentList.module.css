@@ -77,10 +77,9 @@ h2 {
   cursor: pointer;
   margin-top: 16px;
   background-color: #f4f5f7;
-}
-
-.add-document:hover {
-  text-decoration: underline;
+  border: none;
+  display: block;
+  width: 100%;
 }
 
 /* ======= Responsivo ======= */
@@ -113,7 +112,6 @@ h2 {
   align-items: top;
   padding: 16px;
   background: #ffffff;
-  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -130,7 +128,6 @@ h2 {
   align-items: center;
   padding: 16px;
   background: #ffffff;
-  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
@@ -154,4 +151,17 @@ h2 {
   justify-content: space-between;
   align-items: center;
   padding: 8px;
+}
+.controls button {
+  border: none;
+}
+
+.icon {
+  opacity: 0.5;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.icon-active {
+  opacity: 1;
 }

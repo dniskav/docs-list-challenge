@@ -4,6 +4,7 @@ import { useEffect, useState } from '../../../core/fTree/hooks'
 import { documentApi } from '../../../modules/document/application/DocumentApi'
 import styles from './documentList.module.css'
 import { Document } from '../../../modules/document/domain/Document'
+import { AddDocumentModal } from '../../views/modal/AddDocumentModal'
 
 export function DocumentList() {
   const [documents, setDocuments] = useState<Document[]>([])
@@ -11,10 +12,13 @@ export function DocumentList() {
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [view, setView] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const toggleGridView = (type: string) => {
     setView(type === 'grid' ? true : false)
+    console.warn(view)
   }
+
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
@@ -36,6 +40,11 @@ export function DocumentList() {
     setSortedDocuments(sorted)
   }
 
+  const handleAddDocument = (newDoc: any) => {
+    setDocuments((docs) => [...docs, newDoc])
+    setSortedDocuments((docs) => [...docs, newDoc])
+  }
+
   if (loading) return <p>⏳ Cargando documentos...</p>
   if (error) return <p>❌ Error: {error}</p>
 
@@ -45,10 +54,16 @@ export function DocumentList() {
       <nav className={styles.controls}>
         <Sort onChange={onSortChange} />
         <section>
-          <button onClick={() => toggleGridView('list')}>
+          <button
+            onClick={() => toggleGridView('list')}
+            className={`${styles.icon} ${view ? '' : styles['icon-active']}`}
+          >
             <i class="fas fa-list"></i>
           </button>
-          <button onClick={() => toggleGridView('grid')}>
+          <button
+            onClick={() => toggleGridView('grid')}
+            className={`${styles.icon} ${view ? styles['icon-active'] : ''}`}
+          >
             <i class="fas fa-th"></i>
           </button>
         </section>
@@ -80,9 +95,16 @@ export function DocumentList() {
             </div>
           </li>
         ))}
-      </ul>
+        <li>
+          <button className={styles['add-document']} onClick={() => setIsModalOpen(true)}>
+            + Add document
+          </button>
 
-      <div className={styles['add-document']}>+ Add document</div>
+          {isModalOpen && (
+            <AddDocumentModal onClose={() => setIsModalOpen(false)} onAdd={handleAddDocument} />
+          )}
+        </li>
+      </ul>
     </div>
   )
 }
