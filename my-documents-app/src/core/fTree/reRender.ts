@@ -3,7 +3,8 @@ import { setCurrentFid } from './hooks/hooksContext'
 import { generateFID } from './jsxRuntime'
 import { render } from './render'
 
-export function reRenderComponent(fid: string) {
+export const reRenderComponent = (fid: string) => {
+  const scrollPosition = window.scrollY
   const compNode = fTree[fid]
   const oldhostFid = compNode.hostFid
   if (!compNode || !oldhostFid) return
@@ -39,10 +40,16 @@ export function reRenderComponent(fid: string) {
       delete fTree[oldhostFid]
     }
 
-    if (isFocused && newDom instanceof HTMLElement) {
-      const input = newDom.querySelector<HTMLInputElement>('input')
-      input?.focus()
-      input?.setSelectionRange(cursorPos, cursorPos)
-    }
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPosition)
+
+      if (isFocused && newDom instanceof HTMLElement) {
+        const input = newDom.querySelector<HTMLInputElement>('input')
+        if (input) {
+          input.focus()
+          input.setSelectionRange(cursorPos, cursorPos)
+        }
+      }
+    })
   }
 }

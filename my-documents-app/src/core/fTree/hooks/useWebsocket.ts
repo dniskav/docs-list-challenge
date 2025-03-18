@@ -18,7 +18,7 @@ export function useWebSocket(url: string) {
       socket.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data)
-          setMessages([...messages, data])
+          setMessages((prevMessages: any[]) => [...prevMessages, data])
         } catch (err) {
           setError(`❌ Error on message WebSocket: ${err}`)
         }

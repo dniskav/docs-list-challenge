@@ -14,7 +14,7 @@ export function render(vnode: any, parentDom?: HTMLElement): HTMLElement | Text 
     return render({ __fid: hostFid }, parentDom)
   }
 
-  // // Si es un Fragment => renderizar sus children
+  // not Fragment => render children
   // if (nodeData.type === Fragment) {
   //   // nodeData.props.children => array
   //   let domLast: HTMLElement | Text | null = null
