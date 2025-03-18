@@ -1,4 +1,4 @@
-import { h } from '../../../core/fTree/jsxRuntime'
+import { h } from '../../../core/fTree'
 import { Dropdown } from '../utils/Dropdown/Dropdown'
 import styles from './sort.module.css'
 interface Props {

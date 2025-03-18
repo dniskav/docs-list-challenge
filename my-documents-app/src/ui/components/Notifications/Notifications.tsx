@@ -1,4 +1,4 @@
-import { h } from '../../../core/fTree/jsxRuntime'
+import { h } from '../../../core/fTree'
 import { useWebSocket } from '../../../core/fTree/hooks'
 import styles from './notifications.module.css'
 

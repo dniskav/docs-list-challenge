@@ -1,4 +1,4 @@
-import { h } from '../../../../core/fTree/jsxRuntime'
+import { h } from '../../../../core/fTree'
 import { useEffect, useState } from '../../../../core/fTree/hooks'
 import styles from './dropdown.module.css'
 

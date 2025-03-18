@@ -1,4 +1,4 @@
-import { h } from '../../../core/fTree/jsxRuntime'
+import { h } from '../../../core/fTree'
 import { Header } from '../../components'
 import { DocumentList } from '../../components/DocumentsManager/DocumentList'
 
