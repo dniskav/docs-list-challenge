@@ -16,7 +16,6 @@ export function DocumentList() {
 
   const toggleGridView = (type: string) => {
     setView(type === 'grid' ? true : false)
-    console.warn(view)
   }
 
   useEffect(() => {

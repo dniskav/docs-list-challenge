@@ -12,8 +12,7 @@ export function Dropdown({ options, onSelect, placeholder = 'Select one...' }: D
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const toggleDropdown = () => {
-    setIsOpen((prev) => !prev)
-    console.warn(isOpen)
+    setIsOpen((prev: boolean) => !prev)
   }
 
   const handleSelect = (option: string) => {

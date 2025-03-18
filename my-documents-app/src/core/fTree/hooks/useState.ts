@@ -2,7 +2,7 @@ import { fTree } from '../fTree'
 import { reRenderComponent } from '../reRender'
 import { getCurrentFid, getHookIndex, incHookIndex } from './hooksContext'
 
-export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
+export function useState<T>(initialValue: T): [T, (newValue: T | ((prevVal: T) => T)) => void] {
   const fid = getCurrentFid()
   if (!fid) {
     throw new Error('useState called outside of a rendering component!')
@@ -11,13 +11,8 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
   let compNode = fTree[fid]
 
   if (!compNode) {
-    const oldNode = Object.values(fTree).find((n) => n.type === compNode?.type)
-    if (oldNode) {
-      compNode = fTree[fid]
-    } else {
-      fTree[fid] = { fid, type: '', props: {}, state: {}, hooks: [] }
-      compNode = fTree[fid]
-    }
+    fTree[fid] = { fid, type: '', props: {}, state: {}, hooks: [] }
+    compNode = fTree[fid]
   }
 
   if (!compNode.hooks) {
@@ -33,7 +28,9 @@ export function useState<T>(initialValue: T): [T, (newValue: T) => void] {
   const value = compNode.hooks[stateIndex]
 
   const setValue = (newVal: T | ((prevVal: T) => T)) => {
-    const oldVal = compNode.hooks![stateIndex]
+    const oldVal = compNode.hooks?.[stateIndex]
+
+    if (oldVal === undefined) return
 
     const updatedVal = typeof newVal === 'function' ? (newVal as (prevVal: T) => T)(oldVal) : newVal
 
